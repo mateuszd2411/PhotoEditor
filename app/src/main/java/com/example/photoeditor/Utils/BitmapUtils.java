@@ -1,6 +1,7 @@
 package com.example.photoeditor.Utils;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,8 +10,30 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class BitmapUtils {
 
+    public static Bitmap getBitmapFromAssets(Context context, String fileName, int width, int height) {
+        AssetManager assetManager = context.getAssets();
+
+        InputStream inputStream;
+        Bitmap bitmap = null;
+
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            inputStream = assetManager.open(fileName);
+            options.inSampleSize = calculateInSampleSize(options, width, height);
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeStream(inputStream, null, options);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static Bitmap applyOverlay(Context context, Bitmap sourceImage, int overlayDrawableResourceId){
         Bitmap bitmap = null;
