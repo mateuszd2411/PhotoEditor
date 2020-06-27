@@ -3,12 +3,15 @@ package com.example.photoeditor.Utils;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +36,25 @@ public class BitmapUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static Bitmap getBitmapFromGallery(Context context, Uri uri, int width, int height) {
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = context.getContentResolver().query(uri, filePathColumn, null,
+                null,null);
+        cursor.moveToFirst();
+
+        int columnindex = cursor.getColumnIndex(filePathColumn[0]);
+        String picturePath = cursor.getString(columnindex);
+        cursor.close();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(picturePath, options);
+        options.inSampleSize = calculateInSampleSize(options, width, height);
+        options.inJustDecodeBounds = false;
+
+        return BitmapFactory.decodeFile(picturePath, options);
     }
 
     public static Bitmap applyOverlay(Context context, Bitmap sourceImage, int overlayDrawableResourceId){
