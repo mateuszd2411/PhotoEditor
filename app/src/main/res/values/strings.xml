@@ -5,4 +5,5 @@
     <string name="brightness">BRIGHTNESS</string>
     <string name="constraint">CONSTRAINT</string>
     <string name="saturation">SATURATION</string>
+    <string name="filter_name">FILTER NAME</string>
 </resources>
