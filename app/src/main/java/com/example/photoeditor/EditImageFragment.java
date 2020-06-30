@@ -46,18 +46,44 @@ public class EditImageFragment extends Fragment implements SeekBar.OnSeekBarChan
         return itemView;
     }
 
+    //for change progress on seek bar
     @Override
-    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+        if (listener != null) {
 
+            if (seekBar.getId() == R.id.seekbar_brightness) {
+                listener.onBrightnessChanged(progress - 100);
+            }
+            else if (seekBar.getId() == R.id.seekbar_constraint) {
+                progress += 10;
+                float value = .10f * progress;
+                listener.onContrastChanged(value);
+            }
+            else if (seekBar.getId() == R.id.seekbar_saturation) {
+                float value = .10f * progress;
+                listener.onSaturationChanged(value);
+            }
+        }
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-
+        if (listener != null) {
+            listener.onEditStarted();
+        }
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
+        if (listener != null) {
+            listener.onEditCompleted();
+        }
+    }
 
+    //seek bar back to default
+    public void resetControls() {
+        seekbar_brightness.setProgress(100);
+        seekbar_contrast.setProgress(0);
+        seekbar_saturation.setProgress(10);
     }
 }
