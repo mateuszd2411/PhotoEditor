@@ -12,8 +12,12 @@ import android.widget.ImageView;
 import com.example.photoeditor.Adapter.ViewPagerAdapter;
 import com.example.photoeditor.Interface.EditImageFragmentListener;
 import com.example.photoeditor.Interface.FiltersListFragmentListener;
+import com.example.photoeditor.Utils.BitmapUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.zomato.photofilters.imageprocessors.Filter;
+import com.zomato.photofilters.imageprocessors.subfilters.BrightnessSubFilter;
+import com.zomato.photofilters.imageprocessors.subfilters.ContrastSubFilter;
+import com.zomato.photofilters.imageprocessors.subfilters.SaturationSubfilter;
 
 public class MainActivity extends AppCompatActivity implements FiltersListFragmentListener, EditImageFragmentListener {
 
@@ -55,8 +59,17 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
+        loadImage();
+
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void loadImage() {
+        originalBitmap = BitmapUtils.getBitmapFromAssets(this, pictureName, 300, 300);
+        filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        finalBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        img_preview.setImageBitmap(originalBitmap);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -76,16 +89,26 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
 
     @Override
     public void onBrightnessChanged(int brightness) {
-
+        brightnessFinal = brightness;
+        Filter myFilter = new Filter();
+        myFilter.addSubFilter(new BrightnessSubFilter(brightness));
+        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
     }
 
     @Override
     public void onSaturationChanged(float saturation) {
-
+        saturationFinal = saturation;
+        Filter myFilter = new Filter();
+        myFilter.addSubFilter(new SaturationSubfilter(saturation));
+        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
     }
 
     @Override
     public void onContrastChanged(float contrast) {
+        contrastFinal = contrast;
+        Filter myFilter = new Filter();
+        myFilter.addSubFilter(new ContrastSubFilter(contrast));
+        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
 
     }
 
