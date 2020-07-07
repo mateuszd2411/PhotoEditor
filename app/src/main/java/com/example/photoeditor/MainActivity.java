@@ -119,11 +119,29 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
 
     @Override
     public void onEditCompleted() {
+        Bitmap bitmap = filteredBitmap.copy(Bitmap.Config.ARGB_8888, true);
 
+        Filter myFilter = new Filter();
+        myFilter.addSubFilter(new BrightnessSubFilter(brightnessFinal));
+        myFilter.addSubFilter(new SaturationSubfilter(saturationFinal));
+        myFilter.addSubFilter(new ContrastSubFilter(contrastFinal));
+
+        finalBitmap = myFilter.processFilter(bitmap);
     }
 
     @Override
     public void onFilterSelected(Filter filter) {
+        resetControl();
+        filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        img_preview.setImageBitmap(filter.processFilter(filteredBitmap));
+        finalBitmap = filteredBitmap.copy(Bitmap.Config.ARGB_8888, true);
+    }
 
+    private void resetControl() {
+        if (editImageFragment != null)
+            editImageFragment.resetControls();
+        brightnessFinal = 0;
+        saturationFinal = 1.0f;
+        contrastFinal = 1.0f;
     }
 }
