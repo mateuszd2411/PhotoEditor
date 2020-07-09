@@ -1,16 +1,19 @@
 package com.example.photoeditor;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.photoeditor.Adapter.ViewPagerAdapter;
 import com.example.photoeditor.Interface.EditImageFragmentListener;
@@ -181,6 +184,24 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
 
     private void saveImageToGallery() {
 
+        Dexter.withActivity(this)
+                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+
+                        if (report.areAllPermissionsGranted()) {
+                            final String path = BitmapUtils.insertImage
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+                    }
+                });
+
     }
 
     private void openImageFromGallery() {
@@ -191,12 +212,41 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
 
+                        if (report.areAllPermissionsGranted()) {
+
+                            Intent intent = new Intent(Intent.ACTION_PICK);
+                            intent.setType("image/*");
+                            startActivityForResult(intent, PERMISSION_PICK_IMAGE);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-
+                        token.continuePermissionRequest();
                     }
                 });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == PERMISSION_PICK_IMAGE) {
+            Bitmap bitmap = BitmapUtils.getBitmapFromGallery(this, data.getData(), 800, 800);
+
+            //clear bitmap memory
+            originalBitmap.recycle();
+            finalBitmap.recycle();
+
+            originalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            finalBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            img_preview.setImageBitmap(originalBitmap);
+            bitmap.recycle();
+
+            //render selected img thumbnail
+            filtersListFragment.displayThumbnail(originalBitmap);
+        }
     }
 }
