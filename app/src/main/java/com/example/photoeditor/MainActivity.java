@@ -7,11 +7,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -19,6 +23,7 @@ import com.example.photoeditor.Adapter.ViewPagerAdapter;
 import com.example.photoeditor.Interface.EditImageFragmentListener;
 import com.example.photoeditor.Interface.FiltersListFragmentListener;
 import com.example.photoeditor.Utils.BitmapUtils;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.DexterBuilder;
@@ -31,6 +36,7 @@ import com.zomato.photofilters.imageprocessors.subfilters.BrightnessSubFilter;
 import com.zomato.photofilters.imageprocessors.subfilters.ContrastSubFilter;
 import com.zomato.photofilters.imageprocessors.subfilters.SaturationSubfilter;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements FiltersListFragmentListener, EditImageFragmentListener {
@@ -106,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         brightnessFinal = brightness;
         Filter myFilter = new Filter();
         myFilter.addSubFilter(new BrightnessSubFilter(brightness));
-        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
+        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
     }
 
     @Override
@@ -114,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         saturationFinal = saturation;
         Filter myFilter = new Filter();
         myFilter.addSubFilter(new SaturationSubfilter(saturation));
-        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
+        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
     }
 
     @Override
@@ -122,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         contrastFinal = contrast;
         Filter myFilter = new Filter();
         myFilter.addSubFilter(new ContrastSubFilter(contrast));
-        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888,true)));
+        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
 
     }
 
@@ -192,16 +198,50 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
 
                         if (report.areAllPermissionsGranted()) {
-                            final String path = BitmapUtils.insertImage
+                            try {
+                                final String path = BitmapUtils.insertImage(getContentResolver(),
+                                        finalBitmap,
+                                        System.currentTimeMillis() + "_profile.jpg",
+                                        null);
+
+                                if (!TextUtils.isEmpty(path)) {
+                                    Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                            "Image saved to gallery!",
+                                            Snackbar.LENGTH_LONG)
+                                            .setAction("OPEN", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    openImage(path);
+                                                }
+                                            });
+                                    snackbar.show();
+                                } else {
+                                    Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                            "Unable to save image",
+                                            Snackbar.LENGTH_LONG);
+                                    snackbar.show();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-
+                        token.continuePermissionRequest();
                     }
                 });
 
+    }
+
+    private void openImage (String path){
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse(path), "image/*");
+        startActivity(intent);
     }
 
     private void openImageFromGallery() {
