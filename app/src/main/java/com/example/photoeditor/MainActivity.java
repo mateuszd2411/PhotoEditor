@@ -233,7 +233,8 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
                         token.continuePermissionRequest();
                     }
-                });
+                })
+        .check();
 
     }
 
@@ -266,7 +267,8 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
                         token.continuePermissionRequest();
                     }
-                });
+                })
+        .check();
     }
 
     @Override
