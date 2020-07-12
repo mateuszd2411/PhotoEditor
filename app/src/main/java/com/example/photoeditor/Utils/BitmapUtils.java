@@ -50,8 +50,8 @@ public class BitmapUtils {
                 null, null);
         cursor.moveToFirst();
 
-        int columnindex = cursor.getColumnIndex(filePathColumn[0]);
-        String picturePath = cursor.getString(columnindex);
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String picturePath = cursor.getString(columnIndex);
         cursor.close();
 
         BitmapFactory.Options options = new BitmapFactory.Options();
