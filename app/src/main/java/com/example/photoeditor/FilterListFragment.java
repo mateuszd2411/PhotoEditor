@@ -18,6 +18,7 @@ import com.example.photoeditor.Adapter.ThumbnailAdapter;
 import com.example.photoeditor.Interface.FiltersListFragmentListener;
 import com.example.photoeditor.Utils.BitmapUtils;
 import com.example.photoeditor.Utils.SpacesItemDecoration;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.zomato.photofilters.FilterPack;
 import com.zomato.photofilters.imageprocessors.Filter;
 import com.zomato.photofilters.utils.ThumbnailItem;
@@ -26,13 +27,21 @@ import com.zomato.photofilters.utils.ThumbnailsManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilterListFragment extends Fragment implements FiltersListFragmentListener{
+public class FilterListFragment extends BottomSheetDialogFragment implements FiltersListFragmentListener{
 
     RecyclerView recyclerView;
     ThumbnailAdapter adapter;
     List<ThumbnailItem> thumbnailItems;
 
     FiltersListFragmentListener listener;
+
+    static FilterListFragment instance;
+
+    public static  FilterListFragment getInstance() {
+        if (instance == null)
+            instance = new FilterListFragment();
+        return instance;
+    }
 
     public void setListener(FiltersListFragmentListener listener) {
         this.listener = listener;

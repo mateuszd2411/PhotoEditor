@@ -10,14 +10,23 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import com.example.photoeditor.Interface.EditImageFragmentListener;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-public class EditImageFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
+public class EditImageFragment extends BottomSheetDialogFragment implements SeekBar.OnSeekBarChangeListener {
 
     private EditImageFragmentListener listener;
     SeekBar seekbar_brightness, seekbar_contrast, seekbar_saturation;
 
     public void setListener(EditImageFragmentListener listener) {
         this.listener = listener;
+    }
+
+    static  EditImageFragment instance;
+
+    public static EditImageFragment getInstance() {
+        if (instance == null)
+            instance = new EditImageFragment();
+        return instance;
     }
 
     public EditImageFragment() {

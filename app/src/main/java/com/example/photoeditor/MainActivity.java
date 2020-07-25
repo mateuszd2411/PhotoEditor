@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.ViewPager;
 
@@ -38,6 +39,7 @@ import com.zomato.photofilters.imageprocessors.subfilters.SaturationSubfilter;
 import java.io.IOException;
 import java.util.List;
 
+import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
 
     FilterListFragment filtersListFragment;
     EditImageFragment editImageFragment;
+
+    CardView btn_filters_list, btn_edit;
 
     int brightnessFinal = 0;
     float saturationFinal = 1.0f;
@@ -82,6 +86,26 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                 .build();
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        btn_edit = (CardView) findViewById(R.id.btn_edit);
+        btn_filters_list = (CardView) findViewById(R.id.btn_filters_list);
+
+        btn_filters_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FilterListFragment filterListFragment = FilterListFragment.getInstance();
+                filterListFragment.setListener(MainActivity.this);
+                filterListFragment.show(getSupportFragmentManager(), filterListFragment.getTag());
+            }
+        });
+
+        btn_edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditImageFragment editImageFragment = EditImageFragment.getInstance();
+                editImageFragment.setListener(MainActivity.this);
+                editImageFragment.show(getSupportFragmentManager(), editImageFragment.getTag());
+            }
+        });
 
         loadImage();
     }
@@ -199,32 +223,45 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
 
                         if (report.areAllPermissionsGranted()) {
-                            try {
-                                final String path = BitmapUtils.insertImage(getContentResolver(),
-                                        finalBitmap,
-                                        System.currentTimeMillis() + "_profile.jpg",
-                                        null);
+                            photoEditor.saveAsBitmap(new OnSaveBitmap() {
+                                @Override
+                                public void onBitmapReady(Bitmap saveBitmap) {
+                                    try {
 
-                                if (!TextUtils.isEmpty(path)) {
-                                    Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                                            "Image saved to gallery!",
-                                            Snackbar.LENGTH_LONG)
-                                            .setAction("OPEN", new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    openImage(path);
-                                                }
-                                            });
-                                    snackbar.show();
-                                } else {
-                                    Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                                            "Unable to save image",
-                                            Snackbar.LENGTH_LONG);
-                                    snackbar.show();
+                                        photoEditorView.getSource().setImageBitmap(saveBitmap);
+
+                                        final String path = BitmapUtils.insertImage(getContentResolver(),
+                                                saveBitmap,
+                                                System.currentTimeMillis() + "_profile.jpg",
+                                                null);
+
+                                        if (!TextUtils.isEmpty(path)) {
+                                            Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                                    "Image saved to gallery!",
+                                                    Snackbar.LENGTH_LONG)
+                                                    .setAction("OPEN", new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            openImage(path);
+                                                        }
+                                                    });
+                                            snackbar.show();
+                                        } else {
+                                            Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                                    "Unable to save image",
+                                                    Snackbar.LENGTH_LONG);
+                                            snackbar.show();
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+
+                                @Override
+                                public void onFailure(Exception e) {
+
+                                }
+                            });
                         } else {
                             Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                         }
