@@ -38,14 +38,17 @@ import com.zomato.photofilters.imageprocessors.subfilters.SaturationSubfilter;
 import java.io.IOException;
 import java.util.List;
 
+import ja.burhanrashid52.photoeditor.PhotoEditor;
+import ja.burhanrashid52.photoeditor.PhotoEditorView;
+
 public class MainActivity extends AppCompatActivity implements FiltersListFragmentListener, EditImageFragmentListener {
 
     public static final String pictureName = "flash.jpg";
     public static final int PERMISSION_PICK_IMAGE = 1000;
 
-    ImageView img_preview;
-    TabLayout tabLayout;
-    ViewPager viewPager;
+    PhotoEditorView photoEditorView;
+    PhotoEditor photoEditor;
+
     CoordinatorLayout coordinatorLayout;
 
     Bitmap originalBitmap, filteredBitmap, finalBitmap;
@@ -73,22 +76,21 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         getSupportActionBar().setTitle("Instagram Filter");
 
         //view
-        img_preview = (ImageView) findViewById(R.id.image_preview);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        photoEditorView = (PhotoEditorView) findViewById(R.id.image_preview);
+        photoEditor = new PhotoEditor.Builder(this, photoEditorView)
+                .setPinchTextScalable(true)
+                .build();
+
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
         loadImage();
-
-        setupViewPager(viewPager);
-        tabLayout.setupWithViewPager(viewPager);
     }
 
     private void loadImage() {
         originalBitmap = BitmapUtils.getBitmapFromAssets(this, pictureName, 300, 300);
         filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
         finalBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        img_preview.setImageBitmap(originalBitmap);
+        photoEditorView.getSource().setImageBitmap(originalBitmap);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         brightnessFinal = brightness;
         Filter myFilter = new Filter();
         myFilter.addSubFilter(new BrightnessSubFilter(brightness));
-        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
+        photoEditorView.getSource().setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
     }
 
     @Override
@@ -119,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         saturationFinal = saturation;
         Filter myFilter = new Filter();
         myFilter.addSubFilter(new SaturationSubfilter(saturation));
-        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
+        photoEditorView.getSource().setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
     }
 
     @Override
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         contrastFinal = contrast;
         Filter myFilter = new Filter();
         myFilter.addSubFilter(new ContrastSubFilter(contrast));
-        img_preview.setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
+        photoEditorView.getSource().setImageBitmap(myFilter.processFilter(finalBitmap.copy(Bitmap.Config.ARGB_8888, true)));
 
     }
 
@@ -152,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
     public void onFilterSelected(Filter filter) {
         resetControl();
         filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        img_preview.setImageBitmap(filter.processFilter(filteredBitmap));
+        photoEditorView.getSource().setImageBitmap(filter.processFilter(filteredBitmap));
         finalBitmap = filteredBitmap.copy(Bitmap.Config.ARGB_8888, true);
     }
 
@@ -283,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
             originalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             finalBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
             filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
-            img_preview.setImageBitmap(originalBitmap);
+            photoEditorView.getSource().setImageBitmap(originalBitmap);
             bitmap.recycle();
 
             //render selected img thumbnail
