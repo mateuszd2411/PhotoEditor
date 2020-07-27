@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
     FilterListFragment filtersListFragment;
     EditImageFragment editImageFragment;
 
-    CardView btn_filters_list, btn_edit, btn_brush, btn_emoji;
+    CardView btn_filters_list, btn_edit, btn_brush, btn_emoji, btn_add_text;
 
     int brightnessFinal = 0;
     float saturationFinal = 1.0f;
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         btn_filters_list = (CardView) findViewById(R.id.btn_filters_list);
         btn_brush = (CardView) findViewById(R.id.btn_brush);
         btn_emoji = (CardView) findViewById(R.id.btn_emoji);
+        btn_add_text = (CardView) findViewById(R.id.btn_add_text);
 
         btn_filters_list.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,6 +133,13 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                 EmojiFragment emojiFragment = EmojiFragment.getInstance();
                 emojiFragment.setListener(MainActivity.this);
                 emojiFragment.show(getSupportFragmentManager(), emojiFragment.getTag());
+            }
+        });
+
+        btn_add_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
             }
         });
 
