@@ -45,7 +45,7 @@
 
                     <ImageView
                         android:layout_gravity="center_horizontal"
-                        android:src="@drawable/ic_image_white_24"
+                        android:src="@drawable/ic__broken_image_white_24"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
@@ -190,6 +190,40 @@
                         android:textSize="18sp"
                         android:textColor="@android:color/white"
                         android:text="Text"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btn_add_image"
+                android:padding="16dp"
+                app:cardBackgroundColor="@color/card_background_color"
+                android:layout_width="80dp"
+                android:layout_height="80dp">
+
+                <LinearLayout
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_image_white_24"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/white"
+                        android:text="Add Image"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
