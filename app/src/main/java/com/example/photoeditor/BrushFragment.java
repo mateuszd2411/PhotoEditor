@@ -60,7 +60,7 @@ public class BrushFragment extends BottomSheetDialogFragment implements ColorAda
         recycler_color.setHasFixedSize(true);
         recycler_color.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
-        colorAdapter = new ColorAdapter(getContext(), getColorList(), this);
+        colorAdapter = new ColorAdapter(getContext(), this);
         recycler_color.setAdapter(colorAdapter);
 
         //Event
@@ -106,29 +106,6 @@ public class BrushFragment extends BottomSheetDialogFragment implements ColorAda
         return itemView;
     }
 
-    private List<Integer> getColorList() {
-        List<Integer> colorList = new ArrayList<>();
-
-        colorList.add(Color.parseColor("#0d1418"));
-        colorList.add(Color.parseColor("#ff004d"));
-        colorList.add(Color.parseColor("#d47ca0"));
-        colorList.add(Color.parseColor("#7cb07c"));
-        colorList.add(Color.parseColor("#636466"));
-        colorList.add(Color.parseColor("#6d99b4"));
-        colorList.add(Color.parseColor("#d47ca0"));
-        colorList.add(Color.parseColor("#e35e5e"));
-
-        colorList.add(Color.parseColor("#00ffff"));
-        colorList.add(Color.parseColor("#d8d9da"));
-        colorList.add(Color.parseColor("#fee11a"));
-        colorList.add(Color.parseColor("#007030"));
-        colorList.add(Color.parseColor("#de4118"));
-        colorList.add(Color.parseColor("#db7093"));
-        colorList.add(Color.parseColor("#ffefd5"));
-        colorList.add(Color.parseColor("#cd919e"));
-
-        return colorList;
-    }
 
 
     @Override
