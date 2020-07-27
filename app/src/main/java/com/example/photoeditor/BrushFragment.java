@@ -1,22 +1,46 @@
 package com.example.photoeditor;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.ToggleButton;
 
-public class BrushFragment extends Fragment {
+import com.example.photoeditor.Adapter.ColorAdapter;
+import com.example.photoeditor.Interface.BrushFragmentListener;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BrushFragment extends BottomSheetDialogFragment implements ColorAdapter.ColorAdapterListener {
 
     SeekBar seekBar_brush_size, seekBar_opcity_size;
     RecyclerView recycler_color;
-    ToggleButton btn_brush;
+    ToggleButton btn_brush_state;
+    ColorAdapter colorAdapter;
 
+    BrushFragmentListener listener;
+
+    static BrushFragment instance;
+
+    public static BrushFragment getInstance() {
+        if (instance == null)
+            instance = new BrushFragment();
+        return instance;
+    }
+
+    public void setListener(BrushFragmentListener listener) {
+        this.listener = listener;
+    }
 
     public BrushFragment() {
         // Required empty public constructor
@@ -26,6 +50,89 @@ public class BrushFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_brush, container, false);
+        View itemView = inflater.inflate(R.layout.fragment_brush, container, false);
+
+        seekBar_brush_size = (SeekBar) itemView.findViewById(R.id.seek_brush_size);
+        seekBar_opcity_size = (SeekBar) itemView.findViewById(R.id.seek_brush_opcity);
+        btn_brush_state = (ToggleButton) itemView.findViewById(R.id.btn_brush_state);
+        recycler_color = (RecyclerView) itemView.findViewById(R.id.recycler_color);
+
+        recycler_color.setHasFixedSize(true);
+        recycler_color.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+
+        colorAdapter = new ColorAdapter(getContext(), getColorList(), this);
+        recycler_color.setAdapter(colorAdapter);
+
+        //Event
+        seekBar_opcity_size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                listener.onBrushOpacityChangeListener(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar_brush_size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                listener.onBrushSizeChangeListener(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        btn_brush_state.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                listener.onBrushStateChangeListener(isChecked);
+            }
+        });
+
+        return itemView;
+    }
+
+    private List<Integer> getColorList() {
+        List<Integer> colorList = new ArrayList<>();
+
+        colorList.add(Color.parseColor("#0d1418"));
+        colorList.add(Color.parseColor("#ff004d"));
+        colorList.add(Color.parseColor("#d47ca0"));
+        colorList.add(Color.parseColor("#7cb07c"));
+        colorList.add(Color.parseColor("#636466"));
+        colorList.add(Color.parseColor("#6d99b4"));
+        colorList.add(Color.parseColor("#d47ca0"));
+        colorList.add(Color.parseColor("#e35e5e"));
+
+        colorList.add(Color.parseColor("#00ffff"));
+        colorList.add(Color.parseColor("#d8d9da"));
+        colorList.add(Color.parseColor("#fee11a"));
+        colorList.add(Color.parseColor("#007030"));
+        colorList.add(Color.parseColor("#de4118"));
+        colorList.add(Color.parseColor("#db7093"));
+        colorList.add(Color.parseColor("#ffefd5"));
+        colorList.add(Color.parseColor("#cd919e"));
+
+        return colorList;
+    }
+
+
+    @Override
+    public void onColorSelected(int color) {
+        listener.onBrushColorChangeListener(color);
     }
 }

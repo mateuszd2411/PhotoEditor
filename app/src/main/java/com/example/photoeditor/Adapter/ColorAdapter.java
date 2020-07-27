@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.photoeditor.BrushFragment;
 import com.example.photoeditor.R;
 
 import java.util.List;
@@ -18,6 +19,12 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
     Context context;
     List<Integer> colorList;
     ColorAdapterListener listener;
+
+    public ColorAdapter(Context context, List<Integer> colorList, ColorAdapterListener listener) {
+        this.context = context;
+        this.colorList = colorList;
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
