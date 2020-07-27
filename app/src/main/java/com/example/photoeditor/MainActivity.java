@@ -11,6 +11,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         photoEditorView = (PhotoEditorView) findViewById(R.id.image_preview);
         photoEditor = new PhotoEditor.Builder(this, photoEditorView)
                 .setPinchTextScalable(true)
+                .setDefaultEmojiTypeface(Typeface.createFromAsset(getAssets(),"emojione-android.ttf"))
                 .build();
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
