@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.photoeditor.Adapter.ViewPagerAdapter;
 import com.example.photoeditor.Interface.BrushFragmentListener;
 import com.example.photoeditor.Interface.EditImageFragmentListener;
+import com.example.photoeditor.Interface.EmojiFragmentListener;
 import com.example.photoeditor.Interface.FiltersListFragmentListener;
 import com.example.photoeditor.Utils.BitmapUtils;
 import com.google.android.material.snackbar.Snackbar;
@@ -45,7 +46,7 @@ import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
-public class MainActivity extends AppCompatActivity implements FiltersListFragmentListener, EditImageFragmentListener, BrushFragmentListener {
+public class MainActivity extends AppCompatActivity implements FiltersListFragmentListener, EditImageFragmentListener, BrushFragmentListener, EmojiFragmentListener {
 
     public static final String pictureName = "flash.jpg";
     public static final int PERMISSION_PICK_IMAGE = 1000;
@@ -128,7 +129,9 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         btn_emoji.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                
+                EmojiFragment emojiFragment = EmojiFragment.getInstance();
+                emojiFragment.setListener(MainActivity.this);
+                emojiFragment.show(getSupportFragmentManager(), emojiFragment.getTag());
             }
         });
 
@@ -377,5 +380,10 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
             photoEditor.brushEraser();
         else
             photoEditor.setBrushDrawingMode(true);
+    }
+
+    @Override
+    public void onEmojiSelected(String emoji) {
+        photoEditor.addEmoji(emoji);
     }
 }
