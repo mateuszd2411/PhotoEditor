@@ -50,7 +50,7 @@ public class FrameFragment extends BottomSheetDialogFragment implements FrameAda
         brn_add_frame = (Button) itemView.findViewById(R.id.btn_add_frame);
 
         recycler_frame.setHasFixedSize(true);
-        recycler_frame.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler_frame.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         recycler_frame.setAdapter(new FrameAdapter(getContext(), this));
 
         brn_add_frame.setOnClickListener(new View.OnClickListener() {
