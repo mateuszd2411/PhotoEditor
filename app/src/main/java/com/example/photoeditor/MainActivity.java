@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         photoEditorView = (PhotoEditorView) findViewById(R.id.image_preview);
         photoEditor = new PhotoEditor.Builder(this, photoEditorView)
                 .setPinchTextScalable(true)
-                .setDefaultEmojiTypeface(Typeface.createFromAsset(getAssets(),"emojione-android.ttf"))
+                .setDefaultEmojiTypeface(Typeface.createFromAsset(getAssets(), "emojione-android.ttf"))
                 .build();
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
@@ -106,9 +106,13 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
         btn_filters_list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FilterListFragment filterListFragment = FilterListFragment.getInstance();
-                filterListFragment.setListener(MainActivity.this);
-                filterListFragment.show(getSupportFragmentManager(), filterListFragment.getTag());
+                if (filtersListFragment != null) {
+                    filtersListFragment.show(getSupportFragmentManager(), filtersListFragment.getTag());
+                } else {
+                    FilterListFragment filterListFragment = FilterListFragment.getInstance(null);
+                    filterListFragment.setListener(MainActivity.this);
+                    filterListFragment.show(getSupportFragmentManager(), filterListFragment.getTag());
+                }
             }
         });
 
@@ -171,25 +175,31 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
     }
 
     private void addImageToPicture() {
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            Intent intent = new Intent(Intent.ACTION_PICK);
-                            intent.setType("image/*");
-                            startActivityForResult(intent,PERMISSION_INSERT_IMAGE);
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                    }
-                }).check();
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PERMISSION_INSERT_IMAGE);
     }
+
+//    private void addImageToPicture() {
+//        Dexter.withActivity(this)
+//                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
+//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                .withListener(new MultiplePermissionsListener() {
+//                    @Override
+//                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+//                        if (report.areAllPermissionsGranted()) {
+//                            Intent intent = new Intent(Intent.ACTION_PICK);
+//                            intent.setType("image/*");
+//                            startActivityForResult(intent,PERMISSION_INSERT_IMAGE);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+//                        Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+//                    }
+//                }).check();
+//    }
 
     private void loadImage() {
         originalBitmap = BitmapUtils.getBitmapFromAssets(this, pictureName, 300, 300);
@@ -257,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
 
     @Override
     public void onFilterSelected(Filter filter) {
-        resetControl();
+        //resetControl();
         filteredBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
         photoEditorView.getSource().setImageBitmap(filter.processFilter(filteredBitmap));
         finalBitmap = filteredBitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -295,69 +305,112 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
     }
 
     private void saveImageToGallery() {
+        photoEditor.saveAsBitmap(new OnSaveBitmap() {
+            @Override
+            public void onBitmapReady(Bitmap saveBitmap) {
+                try {
 
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                    photoEditorView.getSource().setImageBitmap(saveBitmap);
 
-                        if (report.areAllPermissionsGranted()) {
-                            photoEditor.saveAsBitmap(new OnSaveBitmap() {
-                                @Override
-                                public void onBitmapReady(Bitmap saveBitmap) {
-                                    try {
+                    final String path = BitmapUtils.insertImage(getContentResolver(),
+                            saveBitmap,
+                            System.currentTimeMillis() + "_profile.jpg",
+                            null);
 
-                                        photoEditorView.getSource().setImageBitmap(saveBitmap);
-
-                                        final String path = BitmapUtils.insertImage(getContentResolver(),
-                                                saveBitmap,
-                                                System.currentTimeMillis() + "_profile.jpg",
-                                                null);
-
-                                        if (!TextUtils.isEmpty(path)) {
-                                            Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                                                    "Image saved to gallery!",
-                                                    Snackbar.LENGTH_LONG)
-                                                    .setAction("OPEN", new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View view) {
-                                                            openImage(path);
-                                                        }
-                                                    });
-                                            snackbar.show();
-                                        } else {
-                                            Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                                                    "Unable to save image",
-                                                    Snackbar.LENGTH_LONG);
-                                            snackbar.show();
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                    if (!TextUtils.isEmpty(path)) {
+                        Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                "Image saved to gallery!",
+                                Snackbar.LENGTH_LONG)
+                                .setAction("OPEN", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        openImage(path);
                                     }
-                                }
-
-                                @Override
-                                public void onFailure(Exception e) {
-
-                                }
-                            });
-                        } else {
-                            Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                        }
+                                });
+                        snackbar.show();
+                    } else {
+                        Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                                "Unable to save image",
+                                Snackbar.LENGTH_LONG);
+                        snackbar.show();
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                })
-        .check();
+            @Override
+            public void onFailure(Exception e) {
 
+            }
+        });
     }
 
-    private void openImage (String path){
+
+//    private void saveImageToGallery() {
+//
+//        Dexter.withActivity(this)
+//                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
+//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                .withListener(new MultiplePermissionsListener() {
+//                    @Override
+//                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+//
+//                        if (report.areAllPermissionsGranted()) {
+//                            photoEditor.saveAsBitmap(new OnSaveBitmap() {
+//                                @Override
+//                                public void onBitmapReady(Bitmap saveBitmap) {
+//                                    try {
+//
+//                                        photoEditorView.getSource().setImageBitmap(saveBitmap);
+//
+//                                        final String path = BitmapUtils.insertImage(getContentResolver(),
+//                                                saveBitmap,
+//                                                System.currentTimeMillis() + "_profile.jpg",
+//                                                null);
+//
+//                                        if (!TextUtils.isEmpty(path)) {
+//                                            Snackbar snackbar = Snackbar.make(coordinatorLayout,
+//                                                    "Image saved to gallery!",
+//                                                    Snackbar.LENGTH_LONG)
+//                                                    .setAction("OPEN", new View.OnClickListener() {
+//                                                        @Override
+//                                                        public void onClick(View view) {
+//                                                            openImage(path);
+//                                                        }
+//                                                    });
+//                                            snackbar.show();
+//                                        } else {
+//                                            Snackbar snackbar = Snackbar.make(coordinatorLayout,
+//                                                    "Unable to save image",
+//                                                    Snackbar.LENGTH_LONG);
+//                                            snackbar.show();
+//                                        }
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Exception e) {
+//
+//                                }
+//                            });
+//                        } else {
+//                            Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+//                        token.continuePermissionRequest();
+//                    }
+//                })
+//        .check();
+//
+//    }
+
+    private void openImage(String path) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(path), "image/*");
@@ -365,30 +418,36 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
     }
 
     private void openImageFromGallery() {
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-
-                        if (report.areAllPermissionsGranted()) {
-
-                            Intent intent = new Intent(Intent.ACTION_PICK);
-                            intent.setType("image/*");
-                            startActivityForResult(intent, PERMISSION_PICK_IMAGE);
-                        } else {
-                            Toast.makeText(MainActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                })
-        .check();
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PERMISSION_PICK_IMAGE);
     }
+
+//    private void openImageFromGallery() {
+//        Dexter.withActivity(this)
+//                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
+//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                .withListener(new MultiplePermissionsListener() {
+//                    @Override
+//                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+//
+//                        if (report.areAllPermissionsGranted()) {
+//
+//                            Intent intent = new Intent(Intent.ACTION_PICK);
+//                            intent.setType("image/*");
+//                            startActivityForResult(intent, PERMISSION_PICK_IMAGE);
+//                        } else {
+//                            Toast.makeText(MainActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+//                        token.continuePermissionRequest();
+//                    }
+//                })
+//        .check();
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -410,11 +469,9 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
                 photoEditorView.getSource().setImageBitmap(originalBitmap);
                 bitmap.recycle();
 
-                //render selected img thumbnail
-                filtersListFragment.displayThumbnail(originalBitmap);
-            }
-            else
-            {
+                filtersListFragment = FilterListFragment.getInstance(originalBitmap);
+                filtersListFragment.setListener(this);
+            } else {
                 Bitmap bitmap = BitmapUtils.getBitmapFromGallery(this, data.getData(), 200, 200);
                 photoEditor.addImage(bitmap);
             }
@@ -451,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
 
     @Override
     public void onAddTextButtonClick(Typeface typeface, String text, int color) {
-        photoEditor.addText(typeface,text,color);
+        photoEditor.addText(typeface, text, color);
     }
 
     @Override

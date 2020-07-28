@@ -27,7 +27,7 @@ import com.zomato.photofilters.utils.ThumbnailsManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilterListFragment extends BottomSheetDialogFragment implements FiltersListFragmentListener{
+public class FilterListFragment extends BottomSheetDialogFragment implements FiltersListFragmentListener {
 
     RecyclerView recyclerView;
     ThumbnailAdapter adapter;
@@ -36,10 +36,15 @@ public class FilterListFragment extends BottomSheetDialogFragment implements Fil
     FiltersListFragmentListener listener;
 
     static FilterListFragment instance;
+    static Bitmap bitmap;
 
-    public static  FilterListFragment getInstance() {
-        if (instance == null)
+
+    public static FilterListFragment getInstance(Bitmap bitmapSave) {
+        bitmap = bitmapSave;
+
+        if (instance == null) {
             instance = new FilterListFragment();
+        }
         return instance;
     }
 
@@ -76,7 +81,7 @@ public class FilterListFragment extends BottomSheetDialogFragment implements Fil
         recyclerView.addItemDecoration(new SpacesItemDecoration(space));
         recyclerView.setAdapter(adapter);
 
-        displayThumbnail(null);
+        displayThumbnail(bitmap);
 
         return itemView;
     }
