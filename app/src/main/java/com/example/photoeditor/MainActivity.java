@@ -438,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements FiltersListFragme
     }
 
     @Override
-    public void onAddTextButtonClick(String text, int color) {
-        photoEditor.addText(text, color);
+    public void onAddTextButtonClick(Typeface typeface, String text, int color) {
+        photoEditor.addText(typeface,text,color);
     }
 }
