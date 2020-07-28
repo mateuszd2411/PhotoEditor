@@ -1,0 +1,71 @@
+package com.example.photoeditor.Adapter;
+
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.photoeditor.R;
+
+import java.util.List;
+
+public class FontAdapter extends RecyclerView.Adapter<FontAdapter.FontViewHolder> {
+
+    Context context;
+    FontAdapterClickListener listener;
+    List<String> fontList;
+
+    public FontAdapter(Context context, FontAdapterClickListener listener, List<String> fontList) {
+        this.context = context;
+        this.listener = listener;
+        this.fontList = fontList;
+    }
+
+    @NonNull
+    @Override
+    public FontViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return null;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull FontViewHolder holder, int position) {
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return 0;
+    }
+
+    public class FontViewHolder extends RecyclerView.ViewHolder {
+
+        TextView txt_font_name, txt_font_demo;
+        ImageView img_check;
+
+        public FontViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            txt_font_name = (TextView) itemView.findViewById(R.id.text_font_name);
+            txt_font_demo = (TextView) itemView.findViewById(R.id.text_font_demo);
+
+            img_check = (ImageView) itemView.findViewById(R.id.img_check);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onFontSelected(fontList.get(getAdapterPosition()));
+                }
+            });
+
+        }
+    }
+
+    public interface FontAdapterClickListener {
+        public void onFontSelected(String fontName);
+    }
+
+}
